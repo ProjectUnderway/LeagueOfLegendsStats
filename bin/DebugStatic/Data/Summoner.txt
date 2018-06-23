@@ -1,0 +1,8 @@
+{
+    "profileIconId": 910,
+    "name": "rideskip",
+    "summonerLevel": 29,
+    "accountId": 202700877,
+    "id": 11230208,
+    "revisionDate": 1529496316000
+}

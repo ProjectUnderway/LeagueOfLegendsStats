@@ -1,0 +1,17 @@
+{
+    "matches": [
+        {
+            "lane": "MID",
+            "gameId": 211390499,
+            "champion": 20,
+            "platformId": "OC1",
+            "timestamp": 1529398668956,
+            "queue": 450,
+            "role": "SOLO",
+            "season": 11
+        }
+    ],
+    "endIndex": 1,
+    "startIndex": 0,
+    "totalGames": 1
+}
