@@ -52,10 +52,10 @@ namespace LeagueOfLegendsStats.ViewModel
 
             SummonerSelected = false;
 
-            SummonerName = "rideskip";
+            SummonerName = "summoner X";
 
             Client = new APIClient();
-            Client.APIKey = "RGAPI-4c3b0d6b-fa5a-4bc2-8394-e1f6590cda22";
+            Client.APIKey = "";
             Client.Region = SelectedServer;
 
             var championListTask = Client.GetChampions();
