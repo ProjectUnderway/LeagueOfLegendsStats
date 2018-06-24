@@ -18,11 +18,19 @@ namespace LeagueOfLegendsStats.Data
         private string baseURL;
 
         public string APIKey {get;set;}
-        public string Region { get; set; }
+
+        private string _Region;
+        public string Region
+        {
+            get { return _Region; }
+            //Update URL when region is changed
+            set { _Region = value; baseURL = "https://" + _Region + ".api.riotgames.com/lol/"; }
+        }
 
         public APIClient()
         {
-            baseURL = "https://" + Region + ".api.riotgames.com/lol/";
+            //Default server
+            baseURL = "https://oce1.api.riotgames.com/lol/";
         }
 
         public async Task<List<Champion>> GetChampions()
@@ -54,6 +62,8 @@ namespace LeagueOfLegendsStats.Data
                         IList<JToken> results = championSearch["data"].Children().ToList();
                         foreach (var child in results)
                         {
+                            //The children are retured by id which then contains the champion properties
+                            //To ignore the id the child list is selected (always contain a single object hence .First) which is then converted to our class
                             var obj = child.Children().First().ToObject<Champion>();
                             champList.Add(obj);
                         }

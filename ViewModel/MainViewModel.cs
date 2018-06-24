@@ -16,6 +16,12 @@ namespace LeagueOfLegendsStats.ViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
+        private enum Team
+        {
+            blue = 100,
+            red = 200
+        }
+
         private List<Champion> _Champions;
         public List<Champion> Champions { get { return _Champions; } private set { _Champions = value; RaisePropertyChanged(nameof(Champions)); } }
         public string SummonerName { get; set; }
@@ -47,22 +53,28 @@ namespace LeagueOfLegendsStats.ViewModel
 
         public MainViewModel()
         {
+            //Set up command bindings for the UI
             this.SearchForSummonerCommand = new RelayCommand(this.SearchForSummoner, CanRunCommand);
-            this.SearchForMatchByChampCommand = new RelayCommand<int>(SearchForMatchByChamp);
+            this.SearchForMatchByChampCommand = new RelayCommand<int>(SearchForMatchesByChamp);
 
+            //Initialize properties
             SummonerSelected = false;
-
             SummonerName = "summoner X";
 
+            //Create API Client
             Client = new APIClient();
+            //Key expires every 24 hours - Manually added each time project is worked on
             Client.APIKey = "";
-            Client.Region = SelectedServer;
+            //default reqion
+            Client.Region = "oce1";
 
+            //Get list of all playable champions to popilate UI with
             var championListTask = Client.GetChampions();
             championListTask.Wait();
             Champions = championListTask.Result;
         }
 
+        //Search for the summoner account
         public void SearchForSummoner()
         {
             var summonerTask = Client.GetSummoner(SummonerName);
@@ -70,18 +82,21 @@ namespace LeagueOfLegendsStats.ViewModel
 
             Summoner = summonerTask.Result;
 
+            //If a summoner account was found with the entered name then this will enable the champion selection section
             if(Summoner != null)
                 SummonerSelected = true;
         }
 
-        public void SearchForMatchByChamp(int id)
+        //Search for matches where the clicked champion was used
+        public void SearchForMatchesByChamp(int id)
         {
             Matches = Client.GetMatches(Summoner.id, id).Result;
         }
 
+        //Get details on the selected match in the combo box
         public void GetMatchDetails()
         {
-
+            //If no match was selected in the combobox do nothing
             if (SelectedMatch != null)
             {
                 var matchDetails = Client.GetMatch(SelectedMatch.gameId).Result;
@@ -91,18 +106,21 @@ namespace LeagueOfLegendsStats.ViewModel
                 var blueTeamKills = 0;
                 var redTeamKills =0;
 
+                //calculate stats for the match - in this case kills
                 foreach (var participant in matchDetails.participantIdentities)
                 {
                     var CurrentParticipant = matchDetails.participants.Find(x => x.participantId == participant.participantId);
 
                     averageKills += CurrentParticipant.stats.kills;
 
+                    //check if the paticipant is the entered summoner
                     if (participant.player.summonerId == Summoner.id)
                     {
                         playerKills += CurrentParticipant.stats.kills;
                     }
 
-                    if(CurrentParticipant.teamId == 100)
+                    //Check which team a participant was on
+                    if(CurrentParticipant.teamId == (int)Team.blue)
                     {
                         blueTeamKills += CurrentParticipant.stats.kills;
                     }
@@ -113,8 +131,10 @@ namespace LeagueOfLegendsStats.ViewModel
 
                 }
 
+                //There are always 10 players so to get the average divide by 10
                 averageKills = averageKills / 10;
 
+                //Popluate the chart
                 SeriesCollection = new SeriesCollection
                 {
                     new ColumnSeries
